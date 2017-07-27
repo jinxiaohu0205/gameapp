@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        html,body{
+            width:100%;height:100%;
+            overflow: hidden;
+            padding:0;margin:0;
+        }
+        canvas{
+            background: url(imgs/back/back.jpg);
+            background-repeat:repeat-x;
+            background-color:#fff;
+        }
+        .score{
+        	position: fixed;
+        	right: 0;top:0;
+        	width: 150px;
+        	height: 50px;
+        	background:pink;
+        	border-radius:100px ;
+        	color:yellowgreen;
+        	font-size: 30px;
+        	text-align: center;
+        	line-height: 50px;
+        }
+        .score_text{
+         	position: fixed;
+        	right: 150px;top:5px;
+        	font-size: 30px;
+        	color: #fff;
+         }
+        .life{
+        	position: fixed;
+        	right: 300px;top:0;
+        	width: 150px;
+        	height: 50px;
+        	background:pink;
+        	border-radius:100px ;
+        	color:yellowgreen;
+        	font-size: 30px;
+        	text-align: center;
+        	line-height: 50px;
+        }
+         .life_text{
+         	position: fixed;
+        	right: 450px;top:5px;
+        	font-size: 30px;
+        	color: #fff;
+         }
+        .guank{
+        	position: fixed;
+        	left: 70px;top:0;
+        	width: 150px;
+        	height: 50px;
+        	background:yellowgreen;
+        	border-radius:100px ;
+        	color:red;
+        	font-size: 30px;
+        	text-align: center;
+        	line-height: 50px;
+        }
+        .guank_text{
+         	position: fixed;
+        	left: 00;top:5px;
+        	font-size: 30px;
+        	color: #fff;
+         }
+
+    </style>
+    <script src="game.js"></script>
+    <script src="imgload.js"></script>
+    <script src="touch.js"></script>
+    <script src="hitPix.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded",function(){
+
+            var canvas=document.querySelector("canvas");
+            var cobj=canvas.getContext("2d");
+            var clientW,clientH;
+            var runimg=document.querySelectorAll(".run");
+            var jumpimg=document.querySelectorAll(".jump");
+            var hinderimg=document.querySelectorAll(".hinder");
+			
+
+            //1. 整个游戏的对象
+            var gameObj=new game(canvas,cobj,runimg,jumpimg,hinderimg);
+
+
+          window.onresize=function(){
+                clientW=document.documentElement.clientWidth;
+                clientH=document.documentElement.clientHeight;
+                canvas.width=clientW;
+                canvas.height=clientH;
+                if(canvas.width/1136>canvas.height/544){
+                    canvas.style.backgroundSize="contain";
+                }else{
+                    canvas.style.backgroundSize="cover";
+                }
+
+              gameObj.person.y=canvas.height-gameObj.person.height;
+
+
+              for(var i=0;i<gameObj.hinderArr.length;i++){
+                  gameObj.hinderArr[i].y=canvas.height-gameObj.hinderArr[i].height;
+              }
+
+
+
+          }
+          window.onresize();
+           var imgloadObj= new imageLoad(document.querySelectorAll("img"));
+            imgloadObj.loadAll(function(){
+                 gameObj.play();
+            });
+        })
+    </script>
+</head>
+<body>
+
+<canvas>
+
+</canvas>
+<!--
+
+-->
+<img src="imgs/person/imgs/run1.png" alt="" class="run" hidden>
+<img src="imgs/person/imgs/run2.png" alt="" class="run" hidden>
+<img src="imgs/person/imgs/run3.png" alt="" class="run" hidden>
+<img src="imgs/person/imgs/run4.png" alt="" class="run" hidden>
+<img src="imgs/person/imgs/run5.png" alt="" class="run" hidden>
+<img src="imgs/person/imgs/run6.png" alt="" class="run" hidden>
+<img src="imgs/person/imgs/run7.png" alt="" class="run" hidden>
+<img src="imgs/person/imgs/run8.png" alt="" class="run" hidden>
+<img src="imgs/person/imgs/run9.png" alt="" class="run" hidden>
+<img src="imgs/person/imgs/run10.png" alt="" class="run" hidden>
+<img src="imgs/person/imgs/run11.png" alt="" class="run" hidden>
+<img src="imgs/person/imgs/run12.png" alt="" class="run" hidden>
+<img src="imgs/person/imgs/run13.png" alt="" class="run" hidden>
+<img src="imgs/person/imgs/run14.png" alt="" class="run" hidden>
+<img src="imgs/person/imgs/run15.png" alt="" class="run" hidden>
+
+
+<img src="imgs/hinder/boom.png" alt="" hidden class="hinder">
+<img src="imgs/hinder/chick.png" alt=""hidden class="hinder">
+<img src="imgs/hinder/egg.png" alt=""hidden class="hinder">
+<img src="imgs/hinder/flow.png" alt=""hidden class="hinder">
+<img src="imgs/hinder/grass.png" alt=""hidden class="hinder">
+<img src="imgs/hinder/pail.png" alt=""hidden class="hinder">
+<img src="imgs/hinder/stone.png" alt=""hidden class="hinder">
+<img src="imgs/hinder/tree.png" alt=""hidden class="hinder">
+<img src="imgs/hinder/ys.png" alt=""hidden class="hinder">
+
+
+
+<img src="imgs/person/imgs/run12.png" alt="" class="jump">
+<div class="score_text">分数:</div><div class="score">0</div>
+<div class="life_text">生命:</div><div class="life"></div>
+<div class="guank_text">关卡:</div><div class="guank">1</div>
+</body>
+<script>
+	//		雨滴
+		// var arr=[];
+		// var m3=document.querySelector("body");
+		// for(var i=0;i<200;i++){
+		// 	var div=document.createElement("div");
+		// 	lefts=Math.random()*1200;
+		// 	div.style.cssText="width:2px;height:8px;position:absolute;left:"+((2000)*Math.random()+50)+"px;top:-10px;background:#fff";
+		// 	div.style.transition="transform 2s linear "+Math.random()*4+"s";
+		// 	m3.appendChild(div);
+		// 	arr.push(div);
+		// }
+		// setTimeout(function(){
+		// 	for(var j=0;j<arr.length;j++){
+		// 		arr[j].style.transform="translate(0,2000px)";
+		// 		arr[j].addEventListener("webkitTransitionEnd",function(){
+		// 			//必须把过度事件清掉不然就会有往上返的动作;
+		// 			this.style.transition="null";
+		// 			this.style.transform="translate(0,0)";
+		// 			var that=this;
+		// 			setTimeout(function(){
+		// 				that.style.transition="transform 2s linear "+Math.random()*4+"s";
+		// 				that.style.transform="translate(0,2000px)";
+		// 			})
+		// 		})
+		// 	}
+		// },50)
+</script>
+</html>
